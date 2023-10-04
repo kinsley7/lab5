@@ -27,8 +27,9 @@ Another big issue I ran into was how to display things the way I wanted them to 
 
 -	I want to put the players who share the same teamID as the summonerID that we searched for in the allyteam list and the players who don’t in the enemy team list. That way I can display who the player we are searching for is playing with and who they are against (and what champions, runes, and summoner spells everyone is using). I was stuck and knew I could use some select and where LINQ statements or a forreach and loop but I needed to get the summonerID that was equal to the one we were searching for out of that loop. After I pull that out I can do a loop or select where statement with the teamID from the summoner.
 I figured it out after writing the issue out ^
-     - <img width="273" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/4547bdb9-0a26-4b45-90bb-bf6b6173fa60">
-     - Using a queue I can take the first player out of the allyteams list because the player we are searching for would appear twice (because the teamID would be equal to the teamID of the first object in the list… which is the player we are searching for).
+     - <img width="431" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/19431c07-c5c2-4fa2-89df-7ffe97b93584">
+     - Using a queue I can take the first player out of the ally teams list because the player we are searching for would appear twice (because the teamID would be equal to the teamID of the first object in the list… which is the player we are searching for).
+    
 
 Some places a different API had to be called. 
 
@@ -38,5 +39,7 @@ Some places a different API had to be called.
 
 
 I ran into an issue where the console was exiting after an await in a method. Turns out I just had to add an await where the method was called in the main method.
+
+New issue where i need to get the name of summoner spells but the nuget package im using does not provide a method or class that will convert the id to the name. so i will have to use a json and convert it manually. will update 
 
 
