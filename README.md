@@ -13,6 +13,8 @@ I had to learn how to use this NuGet package that was created for the API, lucki
 -	I did test if I was able to use my user input menus and search for a player without using the package and I was able to.
      - <img width="263" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/b9e2f0b4-4ee5-4a60-8742-92609d174d1c">
      - The “test” string is what would be entered into the link that the API would receive: https://{userInputServer}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{userInputName}?page=1&api_key={key}
+     - 
+In order to create methods I have to pass through several objects like the client, version, and summonerID as these cannot be made static.
 
 There are a lot of servers so in order to have the user select the correct one I decided to try a selection screen where you use the arrow keys to select an option in the menus. No more ReadLines() and all of the if/trycatch/switch statements that would be created because of it. It’s a lot easier to have the user use arrow and enter keys.
 -	I had to google how to do this and watched a YouTube video (https://www.youtube.com/watch?v=YyD1MRJY0qI&ab_channel=RicardoGerbaudo) which thoroughly explains the entire thought process behind it. With this video, I was able to replicate it and create menus that fit my needs. 
