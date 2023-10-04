@@ -37,6 +37,6 @@ Some places a different API had to be called.
    - <img width="521" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/79a4db1e-c0f2-414d-981e-063e6fb7efc6">
 
 
-I ran into an issue where the console was exiting after an await in a method. Turns out I just had to add a .Wait() where the method was called in the main method.
+I ran into an issue where the console was exiting after an await in a method. Turns out I just had to add an await where the method was called in the main method.
 
 
