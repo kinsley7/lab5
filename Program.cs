@@ -9,7 +9,18 @@ using BlossomiShymae.RiotBlossom.Api.Riot;
 using BlossomiShymae.RiotBlossom.Dto.Riot.Spectator;
 using BlossomiShymae.RiotBlossom.Dto.DataDragon.Champion;
 using BlossomiShymae.RiotBlossom.Dto.Riot.LolChallenges;
+using System.Runtime.CompilerServices;
 
+/**       
+ *--------------------------------------------------------------------
+ * 	   File name: Program.cs
+ * 	Project name: LeagueAPI
+ *--------------------------------------------------------------------
+ * Author’s name and email:	 kinsley crowdis crowdis@etsu.edu			
+ *          Course-Section: CSCI 2900-800
+ *           Creation Date:	10/03/2023
+ * -------------------------------------------------------------------
+ */
 namespace LeagueAPI
 {
     public class Program
@@ -58,7 +69,7 @@ namespace LeagueAPI
             
             var summoner = await client.Riot.Summoner.GetByNameAsync(userInputServer, userInputName);
             Console.WriteLine($"\nShowing {summoner.Name}\nLevel: {summoner.SummonerLevel}");
-             IRiotApi riot = client.Riot;
+             
 
            
 
@@ -69,7 +80,7 @@ namespace LeagueAPI
             switch (option)
             {
                 case 4:
-                    LiveMatch(userInputServer, summoner.Id, version, client);
+                   await LiveMatch(userInputServer, summoner.Id, version, client);
                     break;
             }
             
@@ -95,16 +106,6 @@ namespace LeagueAPI
             */
 
         }
-
-      /*  public async Task ChampInfo(string input)
-        {
-
-            var client = RiotBlossomCore.CreateClient(key);
-            var version = await client.DataDragon.GetLatestVersionAsync();
-
-            var champions = await client.MerakiAnalytics.GetChampionDictionaryAsync();
-            var champion = champions[input];
-        } */
 
         static public Platform ServerMenu()
         {
@@ -316,7 +317,7 @@ namespace LeagueAPI
         {
             Console.WriteLine("Loading Live Match Data...");
            
-            var game = await client.Riot.Spectator.GetCurrentGameInfoBySummonerIdAsync(server, summonerId); //returns the json file
+            CurrentGameInfo game = await client.Riot.Spectator.GetCurrentGameInfoBySummonerIdAsync(server, summonerId); //returns the json file
 
             Console.WriteLine("\t-------------------");
             Console.WriteLine("\tLive Match Data");
@@ -330,10 +331,12 @@ namespace LeagueAPI
             Console.WriteLine("Banned Champions in current match: ");
             foreach (var champ in banned)
                 Console.WriteLine(champ.Name);
-            
-            
 
-           
+            //todo: use this
+           // https://ddragon.leagueoflegends.com/cdn/13.15.1/data/en_US/summoner.json
+           // to convert summoner spell ids to their name
+
+
             //make a list of all the participants in the live match so we can pull the champions and summoner names of enemy and ally teams
             List<CurrentGameParticipant> players = new();
             Queue<CurrentGameParticipant> allyTeam = new();
@@ -347,26 +350,30 @@ namespace LeagueAPI
                 if (player.SummonerId == summonerId)
                 {
                     allyTeam.Enqueue(player);
-
-                    if (player.TeamId == allyTeam.First().TeamId)
-                    {
-                        allyTeam.Enqueue(player);
-                    }
-                    else
-                        enemyTeam.Enqueue(player);
-                }
+                } 
             }
 
-           allyTeam.Dequeue();
+           foreach (var player in players)
+            {
+                if (player.TeamId == allyTeam.First().TeamId)
+                {
+                    allyTeam.Enqueue(player);
+                }
+                else
+                    enemyTeam.Enqueue(player);
+            }
+        
+           allyTeam.Dequeue(); //there will be a duplicate so we remove the first one to get rid of the duplicate.
+           
             Console.WriteLine("\tPlayer's Ally Team:\n");
             foreach (var summoner in allyTeam)
-                Console.WriteLine($"{summoner.SummonerName} is playing {await client.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))}\n" +
-                    $"Runes: {summoner.Perks.PerkStyle} {summoner.Perks.PerkSubStyle} \n Summoner Spells: {summoner.Spell1Id} {summoner.Spell2Id}\n");
+                Console.WriteLine($"{summoner.SummonerName} is playing {(await client.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
+                    $"Runes: {(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name} {(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \n"); // Summoner Spells: {summoner.Spell1Id} {summoner.Spell2Id}\n");
 
             Console.WriteLine("\t Player's Enemy Team:\n");
             foreach (var summoner in enemyTeam)
-                Console.WriteLine($"{summoner.SummonerName} is playing {await client.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))}\n" +
-                    $"Runes: {summoner.Perks.PerkStyle} {summoner.Perks.PerkSubStyle} \n Summoner Spells: {summoner.Spell1Id} {summoner.Spell2Id}\n");
+                Console.WriteLine($"{summoner.SummonerName} is playing {(await client.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
+                    $"Runes: {(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name}"); //{(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \n Summoner Spells: {(await client.DataDragon.GetSpellByIdAsync(version, Convert.ToInt32(summoner.Spell1Id))).Name} {summoner.Spell2Id}\n");
 
         }
     }
