@@ -1,6 +1,12 @@
 # lab5
 lab 5 for 2910
 
+<h2>Table of Contents</h2>
+
+-  [Plan from Lab 4](https://github.com/kinsley7/lab5/tree/main#-plan-from-lab-4-/)
+
+-  [Challenges](https://github.com/kinsley7/lab5/tree/main#Challenges/)
+
 <p align = "center"> <h2> Plan from lab 4: </h3> </p>
 
 - view league and tft player match history
