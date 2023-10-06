@@ -10,6 +10,7 @@ using BlossomiShymae.RiotBlossom.Dto.Riot.Spectator;
 using BlossomiShymae.RiotBlossom.Dto.DataDragon.Champion;
 using BlossomiShymae.RiotBlossom.Dto.Riot.LolChallenges;
 using System.Runtime.CompilerServices;
+using BlossomiShymae.RiotBlossom.Dto.Riot.ChampionMastery;
 
 /**       
  *--------------------------------------------------------------------
@@ -30,10 +31,10 @@ namespace LeagueAPI
         static async Task Main(string[] args)
         {
 
-            /*
-           // var client = new HttpClient();
+            
+            
 
- 
+                /*
             // Receive a response and store it in a variable
             // use 'await' when accessing an async method / resource
             HttpResponseMessage response = await client.GetAsync($"https://{userInputServer}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{userInputName}?page=1&api_key={key}");
@@ -57,8 +58,8 @@ namespace LeagueAPI
             */
 
 
-            var  client = RiotBlossomCore.CreateClient(key);
-            var version = await client.DataDragon.GetLatestVersionAsync();
+            var  clientRiot = RiotBlossomCore.CreateClient(key);
+            var version = await clientRiot.DataDragon.GetLatestVersionAsync();
 
 
             Platform userInputServer = ServerMenu();
@@ -67,23 +68,38 @@ namespace LeagueAPI
             
             
             
-            var summoner = await client.Riot.Summoner.GetByNameAsync(userInputServer, userInputName);
+            var summoner = await clientRiot.Riot.Summoner.GetByNameAsync(userInputServer, userInputName);
             Console.WriteLine($"\nShowing {summoner.Name}\nLevel: {summoner.SummonerLevel}");
-             
 
-           
 
-           
-          
-     
-            int option = PlayerMenu();
-            switch (option)
+
+
+
+            bool menu = false;
+            while (!menu) 
             {
-                case 4:
-                   await LiveMatch(userInputServer, summoner.Id, version, client);
-                    break;
+                int option = PlayerMenu();
+                switch (option)
+                {
+                    case 2: //champion masteries
+                        await ChampionMasteries(userInputServer, summoner.Id, version, clientRiot);
+                        break;
+                    case 3: //challenges
+                        await Challenges(userInputServer, summoner.Puuid, version, clientRiot);
+                        break;
+                    case 4:
+                        await LiveMatch(userInputServer, summoner.Id, version, clientRiot);
+                        break;
+                    case 5: //exit
+                        Console.WriteLine("Thanks for using");
+                        menu = true;
+                        break;
+                    case 6: //league match history
+                        break;
+                    case 7: //tft match history
+                        break;
+                }
             }
-            
              
 
               /*
@@ -258,16 +274,17 @@ namespace LeagueAPI
                 Console.WriteLine($"{(option == 2 ? color : null)}View Champion Masteries\u001b[0m");
                 Console.WriteLine($"{(option == 3 ? color : null)}View Challenges\u001b[0m");
                 Console.WriteLine($"{(option == 4 ? color : null)}View Live Match Stats\u001b[0m");
+                Console.WriteLine($"{(option == 5 ? color : null)}Exit\u001b[0m");
 
                 key = Console.ReadKey(true);
 
                 switch (key.Key) //when key is pressed:
                 {
                     case ConsoleKey.DownArrow:
-                        option = (option == 4 ? option = 1 : option + 1); //if the cursor is at the last option and the user presses down, it will return to the top/first option. otherwise it goes down one
+                        option = (option == 5 ? option = 1 : option + 1); //if the cursor is at the last option and the user presses down, it will return to the top/first option. otherwise it goes down one
                         break;
                     case ConsoleKey.UpArrow:
-                        option = (option == 1 ? option = 4 : option - 1); //if the cursor is at the first option and the user pressed up, it will return to the last/bottom option. otherwise it just goes up one
+                        option = (option == 1 ? option = 5 : option - 1); //if the cursor is at the first option and the user pressed up, it will return to the last/bottom option. otherwise it just goes up one
                         break;
                     case ConsoleKey.Enter:
                         isSelected = true;
@@ -288,8 +305,8 @@ namespace LeagueAPI
                 while (!isSelectedTwo)
                 {
                     Console.SetCursorPosition(left, top);
-                    Console.WriteLine($"{(option == 5 ? color : null)}League of Legends\x1b[0m");
-                    Console.WriteLine($"{(option == 6 ? color : null)}Teamfight Tactics\x1b[0m");
+                    Console.WriteLine($"{(option == 6 ? color : null)}League of Legends\x1b[0m");
+                    Console.WriteLine($"{(option == 7 ? color : null)}Teamfight Tactics\x1b[0m");
 
                     key2 = Console.ReadKey(true);
 
@@ -313,11 +330,31 @@ namespace LeagueAPI
 
         }
 
-        public static async Task LiveMatch(Platform server, string summonerId, string version, IRiotBlossomClient client)
+        public static async Task ChampionMasteries(Platform server, string summonerId, string version, IRiotBlossomClient clientRiot)
         {
-            Console.WriteLine("Loading Live Match Data...");
-           
-            CurrentGameInfo game = await client.Riot.Spectator.GetCurrentGameInfoBySummonerIdAsync(server, summonerId); //returns the json file
+            Console.WriteLine("Loading Champion Masteries... ");
+
+            var masteries = await clientRiot.Riot.ChampionMastery.ListBySummonerIdAsync(server, summonerId);
+            
+            foreach (var item in masteries)
+            {
+                Console.WriteLine($"Name: {await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(item.ChampionId))}  Level: {item.ChampionLevel}");
+            }
+        }
+
+        public static async Task Challenges(Platform server, string summonerPuuid, string version, IRiotBlossomClient clientRiot)
+        {
+            Console.WriteLine("Loading Challenges...");
+
+            var challenges = await clientRiot.Riot.LolChallenges.GetPlayerInfoByPuuidAsync(server, summonerPuuid);
+        }
+        public static async Task LiveMatch(Platform server, string summonerId, string version, IRiotBlossomClient clientRiot)
+        {
+            Console.WriteLine($"Loading Live Match Data...");
+
+            
+
+            CurrentGameInfo game = await clientRiot.Riot.Spectator.GetCurrentGameInfoBySummonerIdAsync(server, summonerId); //returns the json file
 
             Console.WriteLine("\t-------------------");
             Console.WriteLine("\tLive Match Data");
@@ -326,16 +363,11 @@ namespace LeagueAPI
             //list of all the banned champions in the live match
             List<Champion> banned = new();
             foreach (var gameInfo in game.BannedChampions)
-                banned.Add(await client.DataDragon.GetChampionByIdAsync(version,Convert.ToInt32(gameInfo.ChampionId)));
+                banned.Add(await clientRiot.DataDragon.GetChampionByIdAsync(version,Convert.ToInt32(gameInfo.ChampionId)));
 
             Console.WriteLine("Banned Champions in current match: ");
             foreach (var champ in banned)
                 Console.WriteLine(champ.Name);
-
-            //todo: use this
-           // https://ddragon.leagueoflegends.com/cdn/13.15.1/data/en_US/summoner.json
-           // to convert summoner spell ids to their name
-
 
             //make a list of all the participants in the live match so we can pull the champions and summoner names of enemy and ally teams
             List<CurrentGameParticipant> players = new();
@@ -364,16 +396,18 @@ namespace LeagueAPI
             }
         
            allyTeam.Dequeue(); //there will be a duplicate so we remove the first one to get rid of the duplicate.
-           
-            Console.WriteLine("\tPlayer's Ally Team:\n");
+
+            // TODO: add what rank the player is. Rank: {(await clientRiot.Riot.League.GetLeagueByIdAsync(server,summoner.SummonerId)).Tier}
+            // TODO: add summoner spells
+            Console.WriteLine("\n\t Player's Ally Team:\n");
             foreach (var summoner in allyTeam)
-                Console.WriteLine($"{summoner.SummonerName} is playing {(await client.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
-                    $"Runes: {(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name} {(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \n"); // Summoner Spells: {summoner.Spell1Id} {summoner.Spell2Id}\n");
+                Console.WriteLine($"{summoner.SummonerName} is playing {(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n  \n" +
+                    $"Runes: {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name} & {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \n"); // Summoner Spells: {await ISummonerSpells.GetSpellNameByIdAsync(summoner.Spell1Id)} {await ISummonerSpells.GetSpellNameByIdAsync(summoner.Spell2Id)}\n");
 
             Console.WriteLine("\t Player's Enemy Team:\n");
             foreach (var summoner in enemyTeam)
-                Console.WriteLine($"{summoner.SummonerName} is playing {(await client.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
-                    $"Runes: {(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name}"); //{(await client.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \n Summoner Spells: {(await client.DataDragon.GetSpellByIdAsync(version, Convert.ToInt32(summoner.Spell1Id))).Name} {summoner.Spell2Id}\n");
+                Console.WriteLine($"{summoner.SummonerName} is playing {(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n " +
+                    $"Runes: {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name} & {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name}"); // \n Summoner Spells: {(await client.DataDragon.GetSpellByIdAsync(version, Convert.ToInt32(summoner.Spell1Id))).Name} {summoner.Spell2Id}\n");
 
         }
     }
