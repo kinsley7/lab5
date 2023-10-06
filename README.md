@@ -5,7 +5,7 @@ lab 5 for 2910
 
 -  [Plan from Lab 4](https://github.com/kinsley7/lab5/tree/main#-plan-from-lab-4-/)
 
--  [Challenges](https://github.com/kinsley7/lab5/tree/main#Challenges/)
+-  [Challenges](https://github.com/kinsley7/lab5/tree/main#-challenges-)
 
 <p align = "center"> <h2> Plan from lab 4: </h3> </p>
 
