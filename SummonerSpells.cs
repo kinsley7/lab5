@@ -46,7 +46,7 @@ namespace LeagueAPI
 
                         foreach (var property in properties)
                         {
-                            var value = property.GetValue(p);
+                            var value = property.GetValue(p); //issue is that P is null so it messes it up
 
                             if (value is ISummonerSpells spell && spell.key == id.ToString())
                             {
