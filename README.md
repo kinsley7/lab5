@@ -44,8 +44,12 @@ Some places a different API had to be called.
    - <img width="521" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/79a4db1e-c0f2-414d-981e-063e6fb7efc6">
 
 
-I ran into an issue where the console was exiting after an await in a method. Turns out I just had to add an await where the method was called in the main method.
+~~New issue where i need to get the name of summoner spells but the nuget package im using does not provide a method or class that will convert the id to the name. so i will have to use a json and convert it manually. will update~~ Fixed 10/07/2023.
 
-New issue where i need to get the name of summoner spells but the nuget package im using does not provide a method or class that will convert the id to the name. so i will have to use a json and convert it manually. will update 
+- I created a new class (SummonerSpells.cs) and instead of using datadragon, which is outdated, switched to using communitydragon's api endpoint which is much cleaner and easier to work with (instead of having a class for each spell, and these classes inside another class that it gets deserialized to, its only one class!).
+   - All i did after that was convert the id JSON object and id obj we are passing through to a string and ran a simple loop that checks if they match. if they do then it displays the summoner spell's name. Seen here:
+   - <img width="275" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/8301a3ca-154c-444a-8548-a9d133db6cb6"> <img width="641" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/c470dd80-a5ee-4f76-aefc-94016e8c67ac">
+
+
 
 
