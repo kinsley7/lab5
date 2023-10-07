@@ -1,20 +1,22 @@
 # lab5
 lab 5 for 2910
 
-<h2>Table of Contents</h2>
+<h2> 📖Table of Contents</h2>
 
 -  [Plan from Lab 4](https://github.com/kinsley7/lab5/tree/main#-plan-from-lab-4-/)
-
+- [Screenshots](https://github.com/kinsley7/lab5/tree/main#-screenshots-)
 -  [Challenges](https://github.com/kinsley7/lab5/tree/main#-challenges-)
 
-<p align = "center"> <h2> Plan from lab 4: </h3> </p>
+<p align = "center"> <h2> 📑Plan from lab 4: </h2> </p>
 
 - view league and tft player match history
 - view a player's champion masteries
 - view challenges a player has completed & the progress made
 - display the current match stats for a player that is in a live game
 
-<p align = "center"> <h2> Challenges: </h3> </p>
+<p align = "center"> <h2> 📸Screenshots </h2> </p>
+
+<p align = "center"> <h2> ⭐Challenges: </h2> </p>
 
 ##### 10/04/2023
 I had to learn how to use this NuGet package that was created for the API, luckily it follows the Riot Games documentation and everything is named or put inside where the documentation says it would be.
