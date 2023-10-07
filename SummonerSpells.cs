@@ -1,6 +1,17 @@
 ﻿using BlossomiShymae.RiotBlossom.Dto.CommunityDragon.Champion;
 using System.Text.Json;
 
+/**       
+ *--------------------------------------------------------------------
+ * 	   File name: SummonerSpells.cs
+ * 	Project name: LeagueAPI
+ *--------------------------------------------------------------------
+ * Author’s name and email:	 kinsley crowdis crowdis@etsu.edu			
+ *          Course-Section: CSCI 2900-800
+ *           Creation Date:	10/05/2023
+ * -------------------------------------------------------------------
+ */
+
 public class SummonerSpells
 {
     public object id { get; set; }
