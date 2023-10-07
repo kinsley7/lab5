@@ -9,7 +9,7 @@ lab 5 for 2910
 
 <p align = "center"> <h2> 📑Plan from lab 4: </h2> </p>
 
-- view league and tft player match history
+- view a player's league and tft match history
 - view a player's champion masteries
 - view challenges a player has completed & the progress made
 - display the current match stats for a player that is in a live game
