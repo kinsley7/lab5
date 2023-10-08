@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using Region = BlossomiShymae.RiotBlossom.Type.Region;
 using BlossomiShymae.RiotBlossom.Dto.Riot.TftMatch;
 using MatchDto = BlossomiShymae.RiotBlossom.Dto.Riot.TftMatch.MatchDto;
+using Microsoft.VisualBasic.FileIO;
 
 /**       
  *--------------------------------------------------------------------
@@ -37,35 +38,32 @@ namespace LeagueAPI
         {
 
             /*
-        // Receive a response and store it in a variable
-        // use 'await' when accessing an async method / resource
-        HttpResponseMessage response = await client.GetAsync($"https://{userInputServer}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{userInputName}?page=1&api_key={key}");
+            // Receive a response and store it in a variable
+            // use 'await' when accessing an async method / resource
+            HttpResponseMessage response = await client.GetAsync($"https://{userInputServer}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{userInputName}?page=1&api_key={key}");
 
-        // store body of the response in a variable (this is our json)
-        string json = await response.Content.ReadAsStringAsync();
+            // store body of the response in a variable (this is our json)
+            string json = await response.Content.ReadAsStringAsync();
 
-        // Deserialize = pulling a .NET object out of json
-        // Serialize = create json from a .NET object
+            // Deserialize = pulling a .NET object out of json
+            // Serialize = create json from a .NET object
 
-        // capitalization of properties doesn't matter with this option, as long as the prop names
-        // match the json keys
-        var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+            // capitalization of properties doesn't matter with this option, as long as the prop names
+            // match the json keys
+            var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
 
-        SummonerDTO p = JsonSerializer.Deserialize<SummonerDTO>(json, options);
-        Console.WriteLine(p + "\n");
+            SummonerDTO p = JsonSerializer.Deserialize<SummonerDTO>(json, options);
+            Console.WriteLine(p + "\n");
 
-
-
-        HttpResponseMessage response = await client.GetAsync($"https://{userInputServer}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{p.}?page=1&api_key={key}");
-        */
+            */
 
 
             var clientRiot = RiotBlossomCore.CreateClient(key);
             var version = await clientRiot.DataDragon.GetLatestVersionAsync();
 
 
-            (Platform userInputServer, Region userInputRegion) = ServerMenu();
-           
+            (Platform userInputServer, Region userInputRegion) = ServerMenu(); //TFT uses region instead of server.
+
 
         summonerName:
             Console.Write("Enter Player's Name: ");
@@ -81,7 +79,7 @@ namespace LeagueAPI
                 {
 
                     int option = PlayerMenu();
-                    Console.WriteLine($"\t{summoner.Name} Level: {summoner.SummonerLevel}");
+                    Console.WriteLine($"\tPlayer: {summoner.Name} Level: {summoner.SummonerLevel}");
                     switch (option)
                     {
                         case 2: //champion masteries
@@ -104,7 +102,15 @@ namespace LeagueAPI
                             menu = false;
                             break;
                         case 6: //league match history
-                            await LeagueMatches(userInputServer, summoner.Puuid, clientRiot);
+                            try
+                            {
+                                await LeagueMatches(userInputServer, summoner.Puuid, clientRiot);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Player has no League matches. Click enter to go back to menu.");
+                                Console.ReadLine();
+                            }
                             break;
                         case 7: //tft match history
                             try
@@ -113,7 +119,8 @@ namespace LeagueAPI
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine("Player has no TFT matches.");
+                                Console.WriteLine("Player has no TFT matches. Click enter to go back to menu.");
+                                Console.ReadLine();
                             }
                             break;
                     }
@@ -129,7 +136,7 @@ namespace LeagueAPI
             Console.WriteLine("Thanks for using");
         }
 
-        static public (Platform platform, Region region)  ServerMenu()
+        static public (Platform platform, Region region) ServerMenu()
         {
             // menu tutorial from https://www.youtube.com/watch?v=YyD1MRJY0qI&ab_channel=RicardoGerbaudo
 
@@ -314,14 +321,14 @@ namespace LeagueAPI
                         isSelected = true;
                         break;
                 }
-               // Console.WriteLine(option);
+                // Console.WriteLine(option);
             }
 
             if (option == 1)
             {
                 Console.Clear();
                 Console.WriteLine("\t-------------------");
-                Console.WriteLine("\tSelect Game to View Match History");
+                Console.WriteLine("Select Game to View Match History");
                 Console.WriteLine("\t-------------------");
 
                 ConsoleKeyInfo key2;
@@ -346,7 +353,7 @@ namespace LeagueAPI
                             isSelectedTwo = true;
                             break;
                     }
-                 //   Console.WriteLine(optionTwo);
+                    //   Console.WriteLine(optionTwo);
                 }
             }
 
@@ -371,7 +378,7 @@ namespace LeagueAPI
             Console.WriteLine("\t Top Ten Champions");
             Console.WriteLine("\t-------------------");
             Console.WriteLine();
-            Console.WriteLine($"{"Name",16} Level {"Total Points",-16}"); //16 spaces behind "Name" ... 16 spaces infront of "Total Points"
+            Console.WriteLine($"{"Name",-10} Level {"Total Points",-16}\n");
 
             int count = 0;
             int maxCount = 10;
@@ -380,7 +387,7 @@ namespace LeagueAPI
                 if (count >= maxCount)
                     break;
 
-                Console.WriteLine($"{(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(item.ChampionId))).Name,16} {item.ChampionLevel} {item.ChampionPoints,-16}");
+                Console.WriteLine($"{(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(item.ChampionId))).Name,-16} {item.ChampionLevel} {item.ChampionPoints,-16}");
                 count++;
             }
 
@@ -389,7 +396,7 @@ namespace LeagueAPI
             Console.ReadLine();
         }
 
-        //todo: covert id to title
+        
         public static async Task Challenges(Platform server, string summonerPuuid, string version, IRiotBlossomClient clientRiot)
         {
             Console.WriteLine("Loading Challenges...");
@@ -398,13 +405,53 @@ namespace LeagueAPI
 
             var challenge = challenges.Challenges;
 
-            var points = challenges.CategoryPoints;
+            int count = 0;
+            int max = 20;
+            int[] ignore = { 0, 1, 2, 3, 4, 5 };
 
-            foreach (var item in challenge)
-            Console.WriteLine((item.ChallengeId) + item.Level);
+            var order = new Dictionary<string, int>
+            {
+                {"CHALLENGER", 1 },
+                {"GRANDMASTER", 2 },
+                {"MASTER", 3 },
+                {"DIAMOND", 4 },
+                {"PLATINUM", 5 },
+                {"GOLD", 6 },
+                {"SILVER", 7 },
+                {"BRONZE", 8 },
+                {"IRON", 9 },
+                {"NONE", 10 }
+            };
+            Console.WriteLine("\t-------------------");
+            Console.WriteLine("\tTop Twenty Challenges");
+            Console.WriteLine("\t-------------------");
+            Console.WriteLine($"{"   Name",-8}{"Level",-16}{"Description"}\n");
+            var sortedList = challenge.Sort((s1, s2) => order[s1.Level] - order[s2.Level]).ToList(); //sort by level
 
-            foreach(var point in points)
-            Console.WriteLine(point.Key + point.Value);
+            foreach (var item in sortedList)
+            {
+                if (count >= max)
+                    break;
+
+                //want to skip the first 5 ids
+                if (ignore.Contains(Convert.ToInt32(item.ChallengeId)))
+                    continue;
+                else
+                {
+                    var info = await clientRiot.Riot.LolChallenges.GetConfigInfoByIdAsync(server, item.ChallengeId);
+                    var names = info.LocalizedNames;
+
+                    foreach (var name in names)
+                    {
+                        if (name.Key == "en_US")
+                            Console.WriteLine($"{name.Value.Name} - {item.Level}: {name.Value.ShortDescription}\n");
+
+                    }
+                    count++;
+                }
+            }
+
+
 
             Console.WriteLine();
             Console.WriteLine("Hit enter to return to menu.");
@@ -421,16 +468,23 @@ namespace LeagueAPI
             foreach (string id in ids)
                 matches.Add(await clientRiot.Riot.Match.GetByIdAsync(server, id));
 
-            Console.WriteLine($"{"Champion",-16} Role {"K/D/A",16}"); // 16 spaces behind "Champion" ... 16 spaces infront of "KDA"
+            Console.WriteLine($"\n{"Win/Loss",-15} {"Champion",-8} Role {"K/D/A",18}\n"); // 10 spaces behind "Win/Loss" ... 18 spaces infront of "KDA"
 
             int kills = 0;
             int deaths = 0;
             int goldEarned = 0;
             var sortedMatches = matches.Select(m => m.Info.Participants.Where(p => p.Puuid == summonerPUUID).First()).ToList();
-
+            string winner = "";
+            string color = "\u001b[36;1m";
             foreach (var match in sortedMatches)
             {
-                Console.WriteLine($"{match.ChampionName,-16} {((match.TeamPosition) == "UTILITY" ? "SUPPORT" : (match.TeamPosition))} {$" {match.Kills}/{match.Deaths}/{match.Assists}",16}");
+                if (match.Win == true)
+                {
+                    winner = "WIN";
+                }
+                else
+                    winner = "LOST";
+                Console.WriteLine($"{(match.Win == true ? color : "\u001b[31m")}{winner,-10} {match.ChampionName,12} {((match.TeamPosition) == "UTILITY" ? "SUPPORT" : (match.TeamPosition))} {$" {match.Kills}/{match.Deaths}/{match.Assists}",20}\u001b[0m");
 
                 kills += match.Kills;
                 deaths += match.Deaths;
@@ -438,17 +492,18 @@ namespace LeagueAPI
             }
 
             Console.WriteLine();
-            Console.WriteLine($"\tAverage KDA is: {((kills + deaths) / matches.Count())}");
-            Console.WriteLine($"\tAverage Gold Earned is: {goldEarned / matches.Count()}");
+            Console.WriteLine($"\tAverage KD for these matches is: {((kills + deaths) / matches.Count())}");
+            Console.WriteLine($"\tAverage Gold Earned for these matches is: {goldEarned / matches.Count()}");
 
             Console.WriteLine();
             Console.WriteLine("Hit enter to return to menu.");
             Console.ReadLine();
         }
-       
-        
+
+
         public static async Task TFTMatches(Region region, Platform server, string summonerPUUID, IRiotBlossomClient clientRiot)
         {
+
             Console.WriteLine("Loading Matches...");
             var ids =
                  await clientRiot.Riot.TftMatch.ListIdsByPuuidAsync(server, summonerPUUID);
@@ -459,11 +514,13 @@ namespace LeagueAPI
                 matches.Add(await clientRiot.Riot.TftMatch.GetByIdAsync(region, id));
 
             int count = 1;
-            Console.WriteLine($"{"Unit Name",-16} {"Unit Tier",16}");
+            string color = "\u001b[36;1m";
+
             foreach (var match in matches)
             {
-                Console.WriteLine($"\nMatch {count} Placed: {match.Info.Participants.Find(p => p.Puuid == summonerPUUID)?.Placement} \n");
-                match.Info.Participants.Find(p => p.Puuid == summonerPUUID)?.Units.ForEach(unit => Console.WriteLine($"{unit.CharacterId,-16}{unit.Tier,16}"));
+                Console.WriteLine($"\n{(match.Info.Participants.Find(p => p.Puuid == summonerPUUID)?.Placement <= 4 ? color : "\u001b[31m")} Match {count}. Placed: {match.Info.Participants.Find(p => p.Puuid == summonerPUUID)?.Placement}\u001b[0m");
+                Console.WriteLine($"{"Unit Name",10} {"Unit Tier",-10}");
+                match.Info.Participants.Find(p => p.Puuid == summonerPUUID)?.Units.ForEach(unit => Console.WriteLine($"{(unit.CharacterId).Remove(0, 5),-12}{unit.Tier,6}"));
                 count++;
             }
 
@@ -471,8 +528,8 @@ namespace LeagueAPI
             Console.WriteLine("Hit enter to return to menu.");
             Console.ReadLine();
         }
-        
-      
+
+
         public static async Task LiveMatch(Platform server, string summonerId, string version, IRiotBlossomClient clientRiot)
         {
             Console.WriteLine($"Loading Live Match Data...");
@@ -523,14 +580,14 @@ namespace LeagueAPI
 
             Console.WriteLine("\n\t Player's Ally Team:\n");
             foreach (var summoner in allyTeam)
-                Console.WriteLine($"{summoner.SummonerName} is playing {(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
+                Console.WriteLine($"\u001b[36;1m{summoner.SummonerName}\u001b[0m is playing {(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
                     $"Runes: {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name} & {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \nSummoner Spells: {await SummonerSpells.GetSpellNameByIdAsync(Convert.ToInt32(summoner.Spell1Id))} & {await SummonerSpells.GetSpellNameByIdAsync(Convert.ToInt32(summoner.Spell2Id))}\n");
 
             Console.WriteLine("\t Player's Enemy Team:\n");
             foreach (var summoner in enemyTeam)
-                Console.WriteLine($"{summoner.SummonerName} is playing {(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
+                Console.WriteLine($"\u001b[31m{summoner.SummonerName}\u001b[0m is playing {(await clientRiot.DataDragon.GetChampionByIdAsync(version, Convert.ToInt32(summoner.ChampionId))).Name}\n" +
                     $"Runes: {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkStyle))).Name} & {(await clientRiot.DataDragon.GetPerkStyleByIdAsync(version, Convert.ToInt32(summoner.Perks.PerkSubStyle))).Name} \nSummoner Spells: {await SummonerSpells.GetSpellNameByIdAsync(Convert.ToInt32(summoner.Spell1Id))} & {await SummonerSpells.GetSpellNameByIdAsync(Convert.ToInt32(summoner.Spell2Id))}\n");
-            
+
             Console.WriteLine();
             Console.WriteLine("Hit enter to return to menu.");
             Console.ReadLine();
