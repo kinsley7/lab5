@@ -425,7 +425,7 @@ namespace LeagueAPI
             Console.WriteLine("\t-------------------");
             Console.WriteLine("\tTop Twenty Challenges");
             Console.WriteLine("\t-------------------");
-            Console.WriteLine($"{"   Name",-8}{"Level",-16}{"Description"}\n");
+            Console.WriteLine($"       {"   Name",-8}{"      Level",-16}{"       Description"}\n"); //idk 
             var sortedList = challenge.Sort((s1, s2) => order[s1.Level] - order[s2.Level]).ToList(); //sort by level
 
             foreach (var item in sortedList)
