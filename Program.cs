@@ -31,7 +31,7 @@ namespace LeagueAPI
 {
     public class Program
     {
-        static string key = "***REMOVED***";
+        static string key = "";
 
         static async Task Main(string[] args)
         {
