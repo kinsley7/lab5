@@ -31,7 +31,7 @@ namespace LeagueAPI
 {
     public class Program
     {
-        static string key = "RGAPI-d277bffa-2077-4192-95ec-d21c284d0d66";
+        static string key = "";
 
         static async Task Main(string[] args)
         {
