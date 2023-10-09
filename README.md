@@ -61,7 +61,7 @@ lab 5 for 2910
 
 <p align = "center"> <h2> ⭐Challenges: </h2> </p>
 
-I had to learn how to use this NuGet package that was created for the API, luckily it follows the Riot Games documentation and everything is named or put inside where the documentation says it would be.
+I had to learn how to use this NuGet package that was created for the API ([RiotBlossom](https://blossomishymae.github.io/RiotBlossom/)), luckily it follows the Riot Games documentation and everything is named or put inside where the documentation says it would be.
 -	I did test if I was able to use my user input menus and search for a player without using the package and I was able to.
      - <img width="263" alt="image" src="https://github.com/kinsley7/lab5/assets/113950546/b9e2f0b4-4ee5-4a60-8742-92609d174d1c">
      - The “test” string is what would be entered into the link that the API would receive: https://{test}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{userInputName}?page=1&api_key={key}
